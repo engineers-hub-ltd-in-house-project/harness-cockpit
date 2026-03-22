@@ -1,0 +1,8 @@
+{
+  "name": "harness-cockpit",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "cd dashboard && bun install && bun run dev"
+  }
+}
