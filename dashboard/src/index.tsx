@@ -5,6 +5,7 @@ import { Layout } from "./views/layout";
 import { SetupWizard } from "./views/setup";
 import { checkCommand } from "./lib/exec";
 import { updateState, getState } from "./lib/state";
+import { setLang, t, type Lang } from "./lib/i18n";
 import prerequisites from "./api/prerequisites.tsx";
 import install from "./api/install.tsx";
 import seed from "./api/seed.tsx";
@@ -20,6 +21,16 @@ app.route("/api/seed", seed);
 app.route("/api/generate", generate);
 app.route("/api/verify", verify);
 
+// --- Language Toggle ---
+app.post("/api/lang", (c) => {
+  const lang = c.req.query("lang") as Lang;
+  if (lang === "ja" || lang === "en") {
+    setLang(lang);
+  }
+  c.header("HX-Redirect", "/");
+  return c.body(null, 200);
+});
+
 // --- Project Analysis ---
 app.post("/api/analyze", async (c) => {
   const body = await c.req.parseBody();
@@ -34,29 +45,28 @@ app.post("/api/analyze", async (c) => {
 
   updateState({ targetProject, projectId: suggestedProjectId, template: detected.template });
 
-  const { SetupWizard: SW } = await import("./views/setup");
   return c.html(
     <div>
       <table>
         <tbody>
           <tr>
-            <td><strong>Detected Language</strong></td>
+            <td><strong>{t("analysis.language")}</strong></td>
             <td>{detected.language}</td>
           </tr>
           <tr>
-            <td><strong>Recommended Template</strong></td>
+            <td><strong>{t("analysis.template")}</strong></td>
             <td><mark>{detected.template || "none"}</mark></td>
           </tr>
           <tr>
-            <td><strong>Indicators</strong></td>
+            <td><strong>{t("analysis.indicators")}</strong></td>
             <td>{detected.indicators.join(", ") || "-"}</td>
           </tr>
           <tr>
-            <td><strong>Available Tools</strong></td>
+            <td><strong>{t("analysis.tools")}</strong></td>
             <td>{detected.tools.join(", ") || "-"}</td>
           </tr>
           <tr>
-            <td><strong>Project ID</strong></td>
+            <td><strong>{t("analysis.projectId")}</strong></td>
             <td><code>{suggestedProjectId}</code></td>
           </tr>
         </tbody>
@@ -65,7 +75,7 @@ app.post("/api/analyze", async (c) => {
         <input type="hidden" name="template" value={detected.template} />
         <input type="hidden" name="projectId" value={suggestedProjectId} />
         <input type="hidden" name="targetProject" value={targetProject} />
-        <button type="submit" style="width: auto;">Apply &amp; Continue</button>
+        <button type="submit" style="width: auto;">{t("analysis.apply")}</button>
       </form>
     </div>
   );

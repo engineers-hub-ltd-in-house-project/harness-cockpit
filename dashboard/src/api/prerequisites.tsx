@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { checkCommand, terraformOutput } from "../lib/exec";
 import { updateStep } from "../lib/state";
 import { Badge } from "../views/layout";
+import { t } from "../lib/i18n";
 
 const app = new Hono();
 
@@ -39,7 +40,7 @@ app.post("/", async (c) => {
       </table>
       {!checks["terraform_deployed"] && (
         <p style="color: #e5534b;">
-          Terraform未デプロイです。先に <code>cd infra/ && terraform apply</code> を実行してください。
+          {t("terraform.missing")}
         </p>
       )}
     </div>
