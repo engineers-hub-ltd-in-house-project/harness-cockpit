@@ -83,29 +83,12 @@ terraform init && terraform apply
 ### 2. 対象プロジェクトにフックを設置
 
 ```bash
-HARNESS_REPO="/path/to/harness-cockpit"
-TARGET="$(pwd)"
-
-# フックスクリプトをコピー
-mkdir -p "${TARGET}/.claude/hooks"
-cp "${HARNESS_REPO}/src/hooks/"*.sh "${TARGET}/.claude/hooks/"
-chmod +x "${TARGET}/.claude/hooks/"*.sh
-
-# 環境変数を設定（値は terraform output から取得）
-cd "${HARNESS_REPO}/infra"
-cat > "${TARGET}/.claude/harness-env" << EOF
-HARNESS_ENDPOINT=$(terraform output -raw api_endpoint)
-HARNESS_TOKEN=$(grep harness_api_token terraform.tfvars | cut -d'"' -f2)
-HARNESS_CONFIG_BUCKET=$(terraform output -raw s3_bucket_name)
-HARNESS_PROJECT_ID=my-project
-EOF
-
-# settings.json にフック登録
-cp "${HARNESS_REPO}/config/hooks-settings.json" "${TARGET}/.claude/settings.json"
-
-# .gitignore に追加
-echo -e ".claude/harness-env\n.claude/harness-rules.json" >> "${TARGET}/.gitignore"
+# 対象プロジェクトのディレクトリに移動して実行
+cd /path/to/target-project
+/path/to/harness-cockpit/scripts/install-hooks.sh [PROJECT_ID]
 ```
+
+スクリプトがフックのコピー、環境変数設定、settings.json登録、動作確認を自動で行う。詳細は [フックインストール手順](docs/operations/02-hook-installation.md) を参照。
 
 ### 3. Grafana ダッシュボードを確認
 

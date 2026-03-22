@@ -75,7 +75,35 @@ sequenceDiagram
     LM->>CW: イベント書き込み
 ```
 
-## 手順
+## インストールスクリプト（推奨）
+
+`scripts/install-hooks.sh` を使用すると、以下の全手順を自動で実行できる。
+
+```bash
+# 対象プロジェクトのディレクトリに移動して実行
+cd /path/to/target-project
+/path/to/harness-cockpit/scripts/install-hooks.sh [PROJECT_ID]
+```
+
+PROJECT_ID を省略した場合、ディレクトリ名が使用される。
+
+スクリプトが自動で行う処理:
+
+```mermaid
+graph TD
+    S1["1. 前提条件チェック<br/>(jq, curl, aws, terraform)"] --> S2["2. Terraform Output 取得<br/>(endpoint, bucket, token)"]
+    S2 --> S3["3. フックスクリプト 3本をコピー<br/>(.claude/hooks/)"]
+    S3 --> S4["4. 環境変数ファイル生成<br/>(.claude/harness-env)"]
+    S4 --> S5["5. settings.json にフック登録<br/>(既存ファイルがあればマージ)"]
+    S5 --> S6["6. .gitignore 更新"]
+    S6 --> S7["7. APIテストイベント送信<br/>(動作確認)"]
+```
+
+手動で個別に実行する場合は以下の手順に従う。
+
+---
+
+## 手動手順
 
 ### 1. フックスクリプトのコピー
 
