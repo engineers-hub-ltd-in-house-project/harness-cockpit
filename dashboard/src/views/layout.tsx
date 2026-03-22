@@ -1,5 +1,6 @@
 import type { FC, PropsWithChildren } from "hono/jsx";
 import { getLang, t } from "../lib/i18n";
+import { faviconSvg } from "./favicon";
 
 export const Layout: FC<PropsWithChildren<{ title?: string }>> = ({
   children,
@@ -15,6 +16,7 @@ export const Layout: FC<PropsWithChildren<{ title?: string }>> = ({
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>{displayTitle}</title>
+        <link rel="icon" type="image/svg+xml" href={faviconSvg} />
         <link
           rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
