@@ -100,10 +100,21 @@ terraform output grafana_endpoint
 # Dashboards > "Harness: Session Timeline" を開く
 ```
 
+## セットアップツール
+
+| ツール | 用途 |
+|--------|------|
+| `scripts/install-hooks.sh` | フック設置 + 環境変数 + settings.json 登録 |
+| `scripts/seed-rules.sh` | 初期ルール 5 種を DynamoDB に投入 |
+| `scripts/generate-config.sh` | DynamoDB からルール設定を生成し S3 + ローカルに配置 |
+| `/setup-harness` (Skill) | 上記を対話的に案内するウィザード |
+
 ## ディレクトリ構成
 
 ```
 harness-cockpit/
+  .claude/commands/
+    setup-harness.md              # Claude Code Skill: セットアップウィザード
   infra/                          # Terraform IaC
     main.tf                       #   ルートモジュール
     modules/
@@ -111,6 +122,10 @@ harness-cockpit/
       lambda/                     #   EventCollector, Authorizer Lambda
       api/                        #   API Gateway HTTP API v2
       grafana/                    #   Amazon Managed Grafana ワークスペース
+  scripts/                        # セットアップ・運用スクリプト
+    install-hooks.sh              #   フック設置
+    seed-rules.sh                 #   初期ルール投入
+    generate-config.sh            #   ルール設定生成
   src/
     hooks/                        # Claude Code フックスクリプト
       harness-gate.sh             #   PreToolUse: ルール判定 + イベント送信
@@ -123,6 +138,7 @@ harness-cockpit/
       session-timeline.json       #   Session Timeline ダッシュボード
   config/                         # 設定テンプレート
     hooks-settings.json           #   Claude Code settings.json テンプレート
+    starter-rules.json            #   初期ルール定義（5 種）
     .env.example                  #   環境変数テンプレート
   docs/
     requirements/                 # 設計仕様書

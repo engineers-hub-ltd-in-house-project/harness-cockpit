@@ -1,0 +1,96 @@
+[
+  {
+    "id": "rule_bash_destructive",
+    "name": "destructive command detection",
+    "description": "rm -rf, drop table, truncate table etc.",
+    "enabled": true,
+    "mode": "permissive",
+    "action": "deny",
+    "priority": 100,
+    "tool_pattern": "Bash",
+    "conditions": {
+      "command_pattern": "(rm\\s+-rf|drop\\s+table|truncate\\s+table|format\\s+|dd\\s+if=)",
+      "file_pattern": null,
+      "content_pattern": null,
+      "exclude_patterns": [
+        "rm -rf ./node_modules",
+        "rm -rf ./dist",
+        "rm -rf ./.cache",
+        "rm -rf ./build",
+        "rm -rf ./.next"
+      ]
+    },
+    "tags": ["security", "bash", "destructive"]
+  },
+  {
+    "id": "rule_env_protection",
+    "name": "dotenv and secrets file protection",
+    "description": ".env, .secrets, credentials files",
+    "enabled": true,
+    "mode": "permissive",
+    "action": "deny",
+    "priority": 200,
+    "tool_pattern": "Write|Edit|MultiEdit",
+    "conditions": {
+      "command_pattern": null,
+      "file_pattern": "(\\.env($|\\.)|\\.secrets|credentials\\.json|secret)",
+      "content_pattern": null,
+      "exclude_patterns": [
+        ".env.example",
+        ".env.template"
+      ]
+    },
+    "tags": ["security", "secrets"]
+  },
+  {
+    "id": "rule_config_protection",
+    "name": "critical config file protection",
+    "description": "tsconfig.json, biome.json, package.json etc.",
+    "enabled": true,
+    "mode": "permissive",
+    "action": "deny",
+    "priority": 50,
+    "tool_pattern": "Write|Edit|MultiEdit",
+    "conditions": {
+      "command_pattern": null,
+      "file_pattern": "(tsconfig\\.json|biome\\.json|eslint.*\\.json|\\.prettierrc|package\\.json)$",
+      "content_pattern": null,
+      "exclude_patterns": []
+    },
+    "tags": ["config", "stability"]
+  },
+  {
+    "id": "rule_git_operations",
+    "name": "dangerous git operations detection",
+    "description": "git push with force, git reset --hard, git clean -f etc.",
+    "enabled": true,
+    "mode": "permissive",
+    "action": "deny",
+    "priority": 150,
+    "tool_pattern": "Bash",
+    "conditions": {
+      "command_pattern": "(git\\s+push\\s+.*-f|git\\s+reset\\s+--hard|git\\s+clean\\s+-f|git\\s+checkout\\s+\\.)",
+      "file_pattern": null,
+      "content_pattern": null,
+      "exclude_patterns": []
+    },
+    "tags": ["security", "git", "destructive"]
+  },
+  {
+    "id": "rule_production_access",
+    "name": "production environment access detection",
+    "description": "production database connections, deploy commands etc.",
+    "enabled": true,
+    "mode": "permissive",
+    "action": "deny",
+    "priority": 250,
+    "tool_pattern": "Bash",
+    "conditions": {
+      "command_pattern": "(psql\\s+.*prod|mysql\\s+.*prod|ssh\\s+.*prod|kubectl\\s+.*prod|aws\\s+.*--profile\\s+prod)",
+      "file_pattern": null,
+      "content_pattern": null,
+      "exclude_patterns": []
+    },
+    "tags": ["security", "production"]
+  }
+]
