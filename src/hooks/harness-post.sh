@@ -22,20 +22,26 @@ LINT_VIOLATIONS=0
 TYPE_ERRORS=0
 OUTCOME="success"
 
-# Quality checks for file editing tools
+# Quality checks for file editing tools via plugin directory
 if [[ "$TOOL_NAME" =~ ^(Write|Edit|MultiEdit)$ ]] && [[ -n "$FILE_PATH" ]]; then
-  # Biome lint (fast, if available)
-  if command -v biome &>/dev/null; then
-    LINT_OUTPUT=$(biome check "$FILE_PATH" 2>&1 || true)
-    LINT_VIOLATIONS=$(echo "$LINT_OUTPUT" | grep -c "error\|warning" || true)
-  fi
+  CHECKS_DIR="${CLAUDE_PROJECT_DIR:-.}/.claude/harness-checks"
 
-  # TypeScript type check (only if tsconfig.json exists)
-  if [[ ("$FILE_PATH" == *.ts || "$FILE_PATH" == *.tsx) ]] && [[ -f "${CLAUDE_PROJECT_DIR:-.}/tsconfig.json" ]]; then
-    if command -v tsc &>/dev/null; then
-      TYPE_OUTPUT=$(timeout 15 tsc --noEmit "$FILE_PATH" 2>&1 || true)
-      TYPE_ERRORS=$(echo "$TYPE_OUTPUT" | grep -c "error TS" || true)
-    fi
+  if [[ -d "$CHECKS_DIR" ]]; then
+    # Execute each check script in the plugin directory
+    for CHECK_SCRIPT in "$CHECKS_DIR"/*.sh; do
+      [[ -x "$CHECK_SCRIPT" ]] || continue
+      CHECK_NAME=$(basename "$CHECK_SCRIPT" .sh)
+
+      COUNT=$(timeout 15 "$CHECK_SCRIPT" "$FILE_PATH" 2>/dev/null || echo "0")
+      COUNT=$(echo "$COUNT" | tail -1 | tr -cd '0-9')
+      COUNT="${COUNT:-0}"
+
+      case "$CHECK_NAME" in
+        lint*)     LINT_VIOLATIONS=$((LINT_VIOLATIONS + COUNT)) ;;
+        type*)     TYPE_ERRORS=$((TYPE_ERRORS + COUNT)) ;;
+        *)         LINT_VIOLATIONS=$((LINT_VIOLATIONS + COUNT)) ;;
+      esac
+    done
   fi
 
   if [[ $LINT_VIOLATIONS -gt 0 || $TYPE_ERRORS -gt 0 ]]; then

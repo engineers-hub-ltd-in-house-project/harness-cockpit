@@ -6,7 +6,10 @@ set -euo pipefail
 #
 # 使い方:
 #   cd /path/to/target-project
-#   /path/to/harness-cockpit/scripts/install-hooks.sh [PROJECT_ID]
+#   /path/to/harness-cockpit/scripts/install-hooks.sh [OPTIONS] [PROJECT_ID]
+#
+# オプション:
+#   --template <name>  品質チェックテンプレートを設置 (typescript, ruby, python)
 #
 # 引数:
 #   PROJECT_ID  省略時はディレクトリ名を使用
@@ -14,7 +17,23 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 HARNESS_REPO="$(cd "${SCRIPT_DIR}/.." && pwd)"
 TARGET_PROJECT="$(pwd)"
-PROJECT_ID="${1:-$(basename "$TARGET_PROJECT")}"
+
+# Parse options
+TEMPLATE=""
+POSITIONAL_ARGS=()
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --template)
+      TEMPLATE="$2"
+      shift 2
+      ;;
+    *)
+      POSITIONAL_ARGS+=("$1")
+      shift
+      ;;
+  esac
+done
+PROJECT_ID="${POSITIONAL_ARGS[0]:-$(basename "$TARGET_PROJECT")}"
 
 # --- 前提条件チェック ---
 
@@ -114,6 +133,25 @@ if [[ -f "$SETTINGS_FILE" ]]; then
 else
   cp "${HARNESS_REPO}/config/hooks-settings.json" "$SETTINGS_FILE"
   echo "    ${SETTINGS_FILE} を新規作成しました"
+fi
+
+# --- 品質チェックテンプレートの設置 ---
+
+if [[ -n "$TEMPLATE" ]]; then
+  TEMPLATE_DIR="${HARNESS_REPO}/examples/${TEMPLATE}/harness-checks"
+  if [[ -d "$TEMPLATE_DIR" ]]; then
+    echo "==> 品質チェックテンプレートを設置中 (${TEMPLATE})..."
+    CHECKS_DIR="${TARGET_PROJECT}/.claude/harness-checks"
+    mkdir -p "$CHECKS_DIR"
+    cp "${TEMPLATE_DIR}"/*.sh "$CHECKS_DIR/"
+    chmod +x "$CHECKS_DIR"/*.sh
+    for f in "$CHECKS_DIR"/*.sh; do
+      echo "    $(basename "$f")"
+    done
+  else
+    echo "    [WARN] テンプレート '${TEMPLATE}' が見つかりません。" >&2
+    echo "    利用可能: $(ls -1 "${HARNESS_REPO}/examples/" 2>/dev/null | tr '\n' ' ')" >&2
+  fi
 fi
 
 # --- .gitignore への追加 ---

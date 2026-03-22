@@ -24,12 +24,32 @@ cd infra/ && terraform output
 
 `scripts/install-hooks.sh` を実行して、対象プロジェクトにフックスクリプト、環境変数、settings.json を設置する。
 
+ユーザーにプロジェクトの言語を聞き、品質チェックテンプレートを選択する:
+
+| テンプレート | ツール | 対象言語 |
+|------------|--------|---------|
+| `typescript` | Biome/oxlint + tsc | TypeScript, JavaScript |
+| `ruby` | RuboCop | Ruby, Rails |
+| `python` | Ruff/flake8 + mypy/pyright | Python |
+| (なし) | テンプレートなし | その他 |
+
+テンプレートを使う場合:
+
+```bash
+cd <対象プロジェクトのパス>
+<harness-cockpitリポジトリのパス>/scripts/install-hooks.sh --template <言語> <PROJECT_ID>
+```
+
+テンプレートなしの場合:
+
 ```bash
 cd <対象プロジェクトのパス>
 <harness-cockpitリポジトリのパス>/scripts/install-hooks.sh <PROJECT_ID>
 ```
 
 スクリプトの最後にAPI疎通テストが実行される。成功を確認してから次に進む。
+
+品質チェックのカスタマイズが必要な場合は `.claude/harness-checks/` にスクリプトを追加・編集できることを案内する。各スクリプトの仕様: 引数にファイルパスを受け取り、最終行に違反件数（整数）を出力する。
 
 ### Step 2: 初期ルールの投入（任意）
 
