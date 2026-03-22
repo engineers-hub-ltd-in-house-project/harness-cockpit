@@ -1,0 +1,320 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "datasource": {
+        "type": "cloudwatch",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "showLabels": false,
+            "showTime": true,
+            "wrapLogMessage": true
+          },
+          "color": {
+            "mode": "fixed"
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 20,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "dedupStrategy": "none",
+        "enableLogDetails": true,
+        "prettifyLogMessage": true,
+        "showCommonLabels": false,
+        "showLabels": false,
+        "showTime": true,
+        "sortOrder": "Ascending",
+        "wrapLogMessage": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${datasource}"
+          },
+          "expression": "fields @timestamp, event_type, tool_name, action, tool_input.command as cmd, tool_input.file_path as path, outcome, matched_rule, rule_mode\n| filter session_id = '${session_id}'\n| sort @timestamp asc",
+          "id": "",
+          "logGroups": [
+            {
+              "arn": "arn:aws:logs:ap-northeast-1:543919083484:log-group:/harness/claude-code/events:*",
+              "name": "/harness/claude-code/events"
+            }
+          ],
+          "queryMode": "Logs",
+          "refId": "A",
+          "region": "ap-northeast-1",
+          "statsGroups": []
+        }
+      ],
+      "title": "Session Timeline",
+      "type": "logs"
+    },
+    {
+      "datasource": {
+        "type": "cloudwatch",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "action"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "allow": {
+                        "color": "green",
+                        "index": 0,
+                        "text": "Allow"
+                      },
+                      "would_block": {
+                        "color": "yellow",
+                        "index": 1,
+                        "text": "Would Block"
+                      },
+                      "blocked": {
+                        "color": "red",
+                        "index": 2,
+                        "text": "Blocked"
+                      }
+                    },
+                    "type": "value"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "outcome"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "success": {
+                        "color": "green",
+                        "index": 0
+                      },
+                      "quality_issue": {
+                        "color": "orange",
+                        "index": 1
+                      },
+                      "execution_failure": {
+                        "color": "red",
+                        "index": 2
+                      }
+                    },
+                    "type": "value"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 24,
+        "x": 0,
+        "y": 20
+      },
+      "id": 2,
+      "options": {
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": false,
+            "displayName": "@timestamp"
+          }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${datasource}"
+          },
+          "expression": "fields @timestamp, event_type, tool_name, action, outcome,\n  tool_input.command as cmd, tool_input.file_path as path,\n  matched_rule, rule_mode,\n  quality_check.lint_violations as lint,\n  quality_check.type_errors as types\n| filter session_id = '${session_id}'\n| sort @timestamp asc",
+          "logGroups": [
+            {
+              "arn": "arn:aws:logs:ap-northeast-1:543919083484:log-group:/harness/claude-code/events:*",
+              "name": "/harness/claude-code/events"
+            }
+          ],
+          "queryMode": "Logs",
+          "refId": "A",
+          "region": "ap-northeast-1",
+          "statsGroups": []
+        }
+      ],
+      "title": "Event Details",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "cloudwatch",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 32
+      },
+      "id": 3,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${datasource}"
+          },
+          "expression": "fields tool_name\n| filter session_id = '${session_id}'\n| stats count() as cnt by tool_name\n| sort cnt desc",
+          "logGroups": [
+            {
+              "arn": "arn:aws:logs:ap-northeast-1:543919083484:log-group:/harness/claude-code/events:*",
+              "name": "/harness/claude-code/events"
+            }
+          ],
+          "queryMode": "Logs",
+          "refId": "A",
+          "region": "ap-northeast-1",
+          "statsGroups": []
+        }
+      ],
+      "title": "Tool Usage Distribution",
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "cloudwatch",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 32
+      },
+      "id": 4,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${datasource}"
+          },
+          "expression": "fields action\n| filter session_id = '${session_id}'\n| stats count() as cnt by action\n| sort cnt desc",
+          "logGroups": [
+            {
+              "arn": "arn:aws:logs:ap-northeast-1:543919083484:log-group:/harness/claude-code/events:*",
+              "name": "/harness/claude-code/events"
+            }
+          ],
+          "queryMode": "Logs",
+          "refId": "A",
+          "region": "ap-northeast-1",
+          "statsGroups": []
+        }
+      ],
+      "title": "Action Distribution",
+      "type": "piechart"
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": [
+    "harness",
+    "claude-code"
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {},
+        "hide": 0,
+        "label": "Data Source",
+        "name": "datasource",
+        "options": [],
+        "query": "cloudwatch",
+        "refresh": 1,
+        "type": "datasource"
+      },
+      {
+        "current": {},
+        "hide": 0,
+        "label": "Session ID",
+        "name": "session_id",
+        "options": [],
+        "query": "",
+        "type": "textbox"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "Asia/Tokyo",
+  "title": "Harness: Session Timeline",
+  "uid": "harness-session-timeline",
+  "version": 1
+}

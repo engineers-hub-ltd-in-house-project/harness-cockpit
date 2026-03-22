@@ -5,9 +5,13 @@ __pycache__/
 .venv/
 venv/
 
-# AWS SAM
-.aws-sam/
-samconfig.toml
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfplan
+terraform.tfvars
+.terraform.lock.hcl
 
 # Build
 dist/
@@ -34,3 +38,4 @@ Thumbs.db
 
 # Logs
 *.log
+infra/modules/lambda/.build/
