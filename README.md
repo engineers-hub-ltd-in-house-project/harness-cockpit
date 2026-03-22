@@ -86,7 +86,15 @@ terraform init && terraform apply
 ```bash
 # 対象プロジェクトのディレクトリに移動して実行
 cd /path/to/target-project
+
+# 言語を自動検出してテンプレートを適用（推奨）
+/path/to/harness-cockpit/scripts/install-hooks.sh --template typescript [PROJECT_ID]
+
+# テンプレートなし
 /path/to/harness-cockpit/scripts/install-hooks.sh [PROJECT_ID]
+
+# GUI ウィザードを使う場合
+cd /path/to/harness-cockpit && bun run dev
 ```
 
 スクリプトがフックのコピー、環境変数設定、settings.json登録、動作確認を自動で行う。詳細は [フックインストール手順](docs/operations/02-hook-installation.md) を参照。
@@ -105,10 +113,11 @@ terraform output grafana_endpoint
 | ツール | 用途 |
 |--------|------|
 | `scripts/install-hooks.sh` | フック設置 + 環境変数 + settings.json 登録 |
+| `scripts/install-hooks.sh --template <lang>` | 上記 + 言語別品質チェック設置 (typescript/ruby/python) |
 | `scripts/seed-rules.sh` | 初期ルール 5 種を DynamoDB に投入 |
 | `scripts/generate-config.sh` | DynamoDB からルール設定を生成し S3 + ローカルに配置 |
 | `/setup-harness` (Skill) | 上記を対話的に案内するウィザード |
-| `cd dashboard && bun run dev` | ブラウザベースのセットアップウィザード (http://localhost:3456) |
+| `bun run dev` | ブラウザベースのセットアップウィザード (http://localhost:3456) |
 
 ## ディレクトリ構成
 

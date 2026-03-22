@@ -110,7 +110,7 @@ terraform plan
 | モジュール | リソース数 | リソース | 用途 |
 |-----------|-----------|---------|------|
 | storage | 7 | CloudWatch Logs group | イベントログ格納 |
-| | | DynamoDB table | ルール・設定管理（Phase 2で使用） |
+| | | DynamoDB table | ルール・設定管理（P2で使用） |
 | | | S3 bucket | 設定ファイル配信 |
 | | | S3 bucket versioning | バケットバージョニング |
 | | | S3 bucket public access block | パブリックアクセス遮断 |
@@ -220,6 +220,6 @@ terraform destroy
 
 ## Terraform stateの管理
 
-Phase 1ではローカルの `terraform.tfstate` を使用している。このファイルは `.gitignore` 対象だが、紛失するとTerraformがリソースを追跡できなくなるため注意すること。
+P1ではローカルの `terraform.tfstate` を使用している。このファイルは `.gitignore` 対象だが、紛失するとTerraformがリソースを追跡できなくなるため注意すること。
 
 S3バックエンドへの移行が必要な場合は `backend.tf` を変更し `terraform init -migrate-state` を実行する。

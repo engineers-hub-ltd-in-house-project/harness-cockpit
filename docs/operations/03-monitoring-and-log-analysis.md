@@ -5,7 +5,7 @@ phase: 1
 
 # モニタリングとログ分析
 
-Phase 1で蓄積されるイベントログの確認方法とCloudWatch Logs Insightsクエリのリファレンス。
+P1で蓄積されるイベントログの確認方法とCloudWatch Logs Insightsクエリのリファレンス。
 
 ## イベントフロー
 
@@ -225,7 +225,7 @@ fields session_id
 | limit 20
 ```
 
-### would_block イベント（Phase 2以降で重要）
+### would_block イベント（P2以降で重要）
 
 ```
 fields @timestamp, tool_name,
@@ -238,7 +238,7 @@ fields @timestamp, tool_name,
 
 ### False Negative候補の検出
 
-ルールにマッチしなかったが問題が発生したイベント。Phase 2でのルール作成候補となる。
+ルールにマッチしなかったが問題が発生したイベント。P2でのルール作成候補となる。
 
 ```
 fields @timestamp, tool_name,

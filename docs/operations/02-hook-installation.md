@@ -101,6 +101,25 @@ graph TD
 
 手動で個別に実行する場合は以下の手順に従う。
 
+## セットアップダッシュボード（GUI）
+
+ブラウザベースのセットアップウィザードを使うこともできる。プロジェクトのパスを入力すると、言語を自動検出し、適切なテンプレートを推薦する。
+
+```bash
+# harness-cockpit リポジトリのルートで実行
+bun run dev
+# http://localhost:3456 にアクセス
+```
+
+ダッシュボードは以下のステップをGUIで案内する:
+
+1. プロジェクトパス入力 → 言語・ツール自動検出
+2. 前提条件チェック（terraform, jq, aws等）
+3. フック設置（install-hooks.sh 実行）
+4. 初期ルール投入（seed-rules.sh 実行）
+5. 設定生成（generate-config.sh 実行）
+6. 動作確認（API疎通テスト + Grafana URL表示）
+
 ---
 
 ## 手動手順
@@ -302,6 +321,61 @@ HARNESS_PROJECT_ID=project-a
 
 # プロジェクトB
 HARNESS_PROJECT_ID=project-b
+```
+
+## 品質チェックプラグインシステム
+
+`harness-post.sh` は `.claude/harness-checks/` ディレクトリ内のスクリプトを自動検出して実行する。言語やフレームワークに応じたチェックツールを柔軟に設定できる。
+
+### プラグインインターフェース
+
+各チェックスクリプトは以下の仕様に従う:
+
+| 項目 | 仕様 |
+|------|------|
+| 配置先 | `.claude/harness-checks/*.sh` |
+| 引数 | `$1` = 対象ファイルパス |
+| 出力 | 最終行に違反件数（整数）を出力 |
+| 終了コード | 0（正常） |
+| タイムアウト | 15秒（harness-post.sh側で制御） |
+
+ファイル名のプレフィックスで集計カテゴリが決まる:
+
+| プレフィックス | 集計先 |
+|--------------|--------|
+| `lint*` | quality_check.lint_violations |
+| `type*` | quality_check.type_errors |
+| その他 | quality_check.lint_violations |
+
+### 言語テンプレート
+
+`install-hooks.sh --template <name>` でテンプレートを自動設置できる。
+
+| テンプレート | ツール | 対象ファイル |
+|------------|--------|------------|
+| `typescript` | Biome/oxlint + tsc | .ts, .tsx, .js, .jsx |
+| `ruby` | RuboCop | .rb, .rake, .gemspec |
+| `python` | Ruff/flake8 + mypy/pyright | .py |
+
+テンプレートの実体は `examples/<name>/harness-checks/` にあり、カスタマイズ可能。
+
+### カスタムチェックの追加
+
+独自のチェックスクリプトを追加する場合は `.claude/harness-checks/` にスクリプトを作成する:
+
+```bash
+#!/usr/bin/env bash
+# .claude/harness-checks/lint-custom.sh
+set -euo pipefail
+FILE_PATH="$1"
+
+# 対象外ファイルはスキップ
+[[ "$FILE_PATH" =~ \.your_ext$ ]] || { echo "0"; exit 0; }
+
+# ツール実行
+OUTPUT=$(your-lint-tool "$FILE_PATH" 2>&1 || true)
+COUNT=$(echo "$OUTPUT" | grep -c "error" || true)
+echo "$COUNT"
 ```
 
 ## トラブルシューティング

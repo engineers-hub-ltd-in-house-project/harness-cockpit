@@ -145,7 +145,7 @@ graph TD
 
 #### Action Distribution (Pie Chart)
 
-セッション内のaction（allow / would_block / blocked）の割合を円グラフで表示する。Phase 1では全てallowとなる。
+セッション内のaction（allow / would_block / blocked）の割合を円グラフで表示する。P1では全てallowとなる。
 
 ### セッションIDの指定
 

@@ -346,6 +346,8 @@ curl -sf -X POST "$HARNESS_ENDPOINT/events" \
 exit 0
 ```
 
+> **実装注記：** 上記コードは設計時点の参考実装である。実際の実装ではプラグインディレクトリ方式を採用し、`.claude/harness-checks/` 内のスクリプトを動的に検出・実行する。これにより biome/tsc 以外の任意のツール（RuboCop, Ruff, mypy 等）にも対応可能となった。詳細は `src/hooks/harness-post.sh` および `examples/` を参照。
+
 ---
 
 ## 3. ルール管理システムの設計
