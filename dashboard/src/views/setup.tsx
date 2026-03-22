@@ -11,25 +11,37 @@ export const SetupWizard: FC = () => {
       {/* Project Path Input */}
       <div class="step-card">
         <h3>{t("project.title")}</h3>
-        <form
-          hx-post="/api/analyze"
-          hx-target="#analysis-result"
-          hx-indicator="#analyze-spinner"
-        >
-          <div class="grid">
-            <input
-              type="text"
-              name="targetProject"
-              placeholder={t("project.placeholder")}
-              value={state.targetProject}
-              required
-            />
-            <button type="submit" style="width: auto;">
-              {t("project.analyze")}
-              <span id="analyze-spinner" class="htmx-indicator spinner" />
-            </button>
-          </div>
-        </form>
+        <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+          <form
+            hx-post="/api/analyze"
+            hx-target="#analysis-result"
+            hx-indicator="#analyze-spinner"
+            style="flex: 1; margin: 0;"
+          >
+            <div class="grid">
+              <input
+                type="text"
+                name="targetProject"
+                placeholder={t("project.placeholder")}
+                value={state.targetProject}
+                required
+              />
+              <button type="submit" style="width: auto;">
+                {t("project.analyze")}
+                <span id="analyze-spinner" class="htmx-indicator spinner" />
+              </button>
+            </div>
+          </form>
+          <button
+            hx-get="/api/browse"
+            hx-target="#folder-browser"
+            class="outline"
+            style="width: auto; margin: 0;"
+          >
+            {t("browse.btn")}
+          </button>
+        </div>
+        <div id="folder-browser" />
         <div id="analysis-result" />
       </div>
 

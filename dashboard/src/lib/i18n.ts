@@ -48,6 +48,9 @@ const messages: Record<Lang, Record<string, string>> = {
     "status.done": "Complete",
     "status.error": "Error",
     "terraform.missing": "Terraform未デプロイです。先に cd infra/ && terraform apply を実行してください。",
+    "browse.btn": "Browse",
+    "browse.select": "Select:",
+    "browse.empty": "サブディレクトリなし",
   },
   en: {
     "app.title": "Harness Cockpit Setup",
@@ -82,5 +85,8 @@ const messages: Record<Lang, Record<string, string>> = {
     "status.done": "Complete",
     "status.error": "Error",
     "terraform.missing": "Terraform not deployed. Run cd infra/ && terraform apply first.",
+    "browse.btn": "Browse",
+    "browse.select": "Select:",
+    "browse.empty": "No subdirectories",
   },
 };

@@ -11,6 +11,7 @@ import install from "./api/install.tsx";
 import seed from "./api/seed.tsx";
 import generate from "./api/generate.tsx";
 import verify from "./api/verify.tsx";
+import browse from "./api/browse.tsx";
 
 const app = new Hono();
 
@@ -20,6 +21,7 @@ app.route("/api/install", install);
 app.route("/api/seed", seed);
 app.route("/api/generate", generate);
 app.route("/api/verify", verify);
+app.route("/api/browse", browse);
 
 // --- Language Toggle ---
 app.post("/api/lang", (c) => {
