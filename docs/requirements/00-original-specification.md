@@ -871,44 +871,56 @@ DynamoDBデータの表示には、**Lambda経由のJSON APIデータソース**
 gantt
     title 導入ロードマップ
     dateFormat YYYY-MM-DD
-    axisFormat %m月
+    axisFormat %m/%d
 
-    section Phase 1
-    完全パーミッシブ（ログ蓄積）: p1, 2026-03-22, 14d
+    section P0 PoC
+    インフラ構築・フック設置・疎通確認: p0, 2026-03-22, 7d
 
-    section Phase 2
-    ルール仮決め（WOULD_BLOCK蓄積）: p2, after p1, 14d
+    section P1 導入
+    全操作ログ蓄積（完全パーミッシブ）: p1, after p0, 14d
 
-    section Phase 3
-    段階的エンフォーシング: p3, after p2, 28d
+    section P2 ルール化
+    初期ルール定義・WOULD_BLOCK蓄積: p2, after p1, 14d
 
-    section Phase 4
-    定常運用: p4, after p3, 60d
+    section P3 エンフォーシング
+    段階的にルールをenforcing昇格: p3, after p2, 28d
+
+    section P4 定常運用
+    成熟ルールセットで継続運用: p4, after p3, 30d
 ```
 
-### Phase 1：完全パーミッシブ（Week 1--2）
+### P0: PoC（1--2週間）
 
-**目標：** 全操作をログに記録し、ベースラインデータを蓄積する。ブロックは一切行わない。
+**目標：** インフラ構築、フック設置、E2E疎通確認までを完了する。
 
-**実装タスク：**
-1. AWSインフラのデプロイ（API Gateway、Lambda、CloudWatch Logs、DynamoDB、S3）
-2. `harness-gate.sh` と `harness-post.sh` をプロジェクトに配置（ルールファイルなし＝全許可モード）
-3. `settings.json` にPreToolUse/PostToolUseフックを登録
-4. AMGワークスペース作成、CloudWatch Logsデータソース接続
-5. セッションログビューのみ構築（最低限の可視化）
+**タスク：**
+1. Terraformで全AWSリソースをデプロイ（API Gateway、Lambda、CloudWatch Logs、DynamoDB、S3、AMG）
+2. `scripts/install-hooks.sh` で対象プロジェクトにフックを設置
+3. テストイベント送信とCloudWatch Logsへの記録を確認
+4. Grafana Session Timelineダッシュボードでイベント表示を確認
 
-**このフェーズの成果物：** 2週間分のツール実行ログ。どのツールがどんなパターンで使われているかの **行動ベースライン** が確立される。SELinuxで `setenforce 0` にして `audit.log` を蓄積するフェーズに相当する。
+**成果物：** デプロイ済みインフラ、動作するフック、Grafanaダッシュボード。
 
-### Phase 2：ダッシュボードでルール仮決め（Week 3--4）
+### P1: 導入（1--2週間）
+
+**目標：** 全操作をログに記録し、行動ベースラインデータを蓄積する。ブロックは一切行わない。
+
+**タスク：**
+1. 日常のClaude Code利用でイベントを蓄積（ルールファイルなし＝全許可モード）
+2. 日次でイベント記録の確認、Lambdaエラーの確認
+3. 週次でツール使用パターンと品質問題パターンを分析
+
+**成果物：** ツール実行ログの行動ベースライン。SELinuxで `setenforce 0` にして `audit.log` を蓄積するフェーズに相当する。
+
+### P2: ルール化（1--2週間）
 
 **目標：** 蓄積ログを分析し、パーミッシブモードのルールを定義する。
 
-**実装タスク：**
-1. ルール管理ビューとインシデントレビュービューをGrafanaに構築
-2. Phase 1のログデータをCloudWatch Logs Insightsで分析し、頻出パターンを特定
-3. 初期ルールセット（5--10個）をDynamoDBに登録。**全ルールをパーミッシブモードで開始**
-4. ConfigGenerator Lambdaで `harness-rules.json` を生成、S3配信開始
-5. `WOULD_BLOCK`イベントの蓄積を開始
+**タスク：**
+1. P1のログデータをCloudWatch Logs Insightsで分析し、頻出パターンを特定
+2. 初期ルールセット（5--10個）をDynamoDBに登録。**全ルールをパーミッシブモードで開始**
+3. ルール管理ビューとインシデントレビュービューをGrafanaに構築
+4. `WOULD_BLOCK`イベントの蓄積を開始
 
 **初期ルール例：**
 - `rule_bash_destructive`：`rm -rf`、`drop table` 等 → permissive/deny
@@ -917,9 +929,9 @@ gantt
 - `rule_git_operations`：`git push` with force flag、`git reset --hard` → permissive/deny
 - `rule_production_access`：本番環境への接続コマンド → permissive/deny
 
-**このフェーズの成果物：** `WOULD_BLOCK` イベントのレビューデータ。各ルールのFP率が可視化され始める。
+**成果物：** `WOULD_BLOCK` イベントのレビューデータ。各ルールのFP率が可視化され始める。
 
-### Phase 3：重要ルールのみエンフォーシング（Week 5--8）
+### P3: エンフォーシング（2--4週間）
 
 **目標：** FP率が十分に低い（**10%未満**）ルールをエンフォーシングに昇格する。
 
@@ -931,22 +943,21 @@ gantt
 
 **典型的な昇格候補：** `.env`保護ルール（FP率は通常ほぼ0%）、本番DB接続ルール。一方、`rm -rf`ルールは `./node_modules` 等の正当なユースケースが多くFP率が高いため、`exclude_patterns` の追加調整を繰り返してから昇格する。
 
-**このフェーズのGrafanaアクション：** ルール管理ビューの`[Enforce]`ボタンを使い、ルール単位でモードを切り替える。品質トレンドビューでエンフォーシング前後の品質スコア変化を監視する。
+**Grafanaアクション：** ルール管理ビューの`[Enforce]`ボタンでルール単位のモード切替。品質トレンドビューでエンフォーシング前後の品質スコア変化を監視する。
 
-### Phase 4：大半エンフォーシング、例外のみパーミッシブ（Month 3以降）
+### P4: 定常運用
 
-**目標：** 成熟したルールセットで大半の操作を制御下に置く。新しいルールの追加時のみパーミッシブで開始するサイクルを確立する。
+**目標：** 成熟したルールセットで大半の操作を制御下に置く。新ルール追加時のみパーミッシブで開始するサイクルを確立する。
 
-**運用サイクル（定常状態）：**
+**運用サイクル：**
 1. 新しい問題パターンを発見 → パーミッシブモードで新ルール追加
-2. 2--4週間の観測期間
+2. 1--2週間の観測期間
 3. FP率が基準を満たしたらエンフォーシング昇格
 4. 既存ルールでFP率が上昇したら一時的にパーミッシブに降格して調査
 
 **自動化の追加（このフェーズで検討）：**
 - FP率が閾値を超えたルールを自動でパーミッシブに降格するGrafanaアラート
 - `WOULD_BLOCK`イベントの傾向から新ルールを自動提案するLambda（audit2allow的機能）
-- 月次レポートの自動生成
 
 ---
 
