@@ -108,6 +108,7 @@ terraform output grafana_endpoint
 | `scripts/seed-rules.sh` | 初期ルール 5 種を DynamoDB に投入 |
 | `scripts/generate-config.sh` | DynamoDB からルール設定を生成し S3 + ローカルに配置 |
 | `/setup-harness` (Skill) | 上記を対話的に案内するウィザード |
+| `cd dashboard && bun run dev` | ブラウザベースのセットアップウィザード (http://localhost:3456) |
 
 ## ディレクトリ構成
 
