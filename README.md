@@ -116,6 +116,7 @@ terraform output grafana_endpoint
 | `scripts/install-hooks.sh --template <lang>` | 上記 + 言語別品質チェック設置 (typescript/ruby/python) |
 | `scripts/seed-rules.sh` | 初期ルール 5 種を DynamoDB に投入 |
 | `scripts/generate-config.sh` | DynamoDB からルール設定を生成し S3 + ローカルに配置 |
+| `scripts/uninstall-hooks.sh` | フック・環境変数・プラグインを除去 |
 | `/setup-harness` (Skill) | 上記を対話的に案内するウィザード |
 | `bun run dev` | ブラウザベースのセットアップウィザード (http://localhost:3456) |
 
@@ -136,6 +137,7 @@ harness-cockpit/
     install-hooks.sh              #   フック設置
     seed-rules.sh                 #   初期ルール投入
     generate-config.sh            #   ルール設定生成
+    uninstall-hooks.sh            #   フック除去
   src/
     hooks/                        # Claude Code フックスクリプト
       harness-gate.sh             #   PreToolUse: ルール判定 + イベント送信

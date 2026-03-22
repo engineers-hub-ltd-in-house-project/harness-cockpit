@@ -145,6 +145,31 @@ export const SetupWizard: FC = () => {
         </div>
         <div id="verify-result" />
       </div>
+
+      {/* Uninstall */}
+      <hr style="margin: 2rem 0 1rem;" />
+      <div class="step-card" style="border-color: #e5534b40;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <h3 style="color: #e5534b;">{t("uninstall.title")}</h3>
+            <p style="font-size: 0.85rem; color: var(--pico-muted-color); margin: 0;">
+              {t("uninstall.desc")}
+            </p>
+          </div>
+          <button
+            hx-post="/api/uninstall"
+            hx-target="#uninstall-result"
+            hx-indicator="#uninstall-spinner"
+            hx-confirm={t("uninstall.confirm")}
+            class="outline"
+            style="width: auto; margin: 0; border-color: #e5534b; color: #e5534b;"
+          >
+            {t("uninstall.btn")}
+            <span id="uninstall-spinner" class="htmx-indicator spinner" />
+          </button>
+        </div>
+        <div id="uninstall-result" />
+      </div>
     </div>
   );
 };

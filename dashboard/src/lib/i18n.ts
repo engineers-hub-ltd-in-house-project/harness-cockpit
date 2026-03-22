@@ -51,6 +51,10 @@ const messages: Record<Lang, Record<string, string>> = {
     "browse.btn": "Browse",
     "browse.select": "Select:",
     "browse.empty": "サブディレクトリなし",
+    "uninstall.title": "Uninstall",
+    "uninstall.btn": "Uninstall",
+    "uninstall.desc": "フックスクリプト、環境変数、品質チェックプラグイン、settings.json のフック登録を除去",
+    "uninstall.confirm": "フックと関連ファイルをアンインストールします。続行しますか?",
   },
   en: {
     "app.title": "Harness Cockpit Setup",
@@ -88,5 +92,9 @@ const messages: Record<Lang, Record<string, string>> = {
     "browse.btn": "Browse",
     "browse.select": "Select:",
     "browse.empty": "No subdirectories",
+    "uninstall.title": "Uninstall",
+    "uninstall.btn": "Uninstall",
+    "uninstall.desc": "Remove hook scripts, env file, quality check plugins, and settings.json hook entries",
+    "uninstall.confirm": "This will uninstall hooks and related files. Proceed?",
   },
 };
